@@ -1,0 +1,64 @@
+{
+    "toggle": {
+        "color_formatting": true,
+        "blank_formatting": true,
+        "indent_formatting": true
+    },
+    "colors": {
+        "python": {
+            "built_in_functions": {
+                "print": "lemon",
+                "len": "lemon",
+                "__init__": "lemon",
+                "__next__": "lemon",
+                "range": "mint",
+                "type": "mint",
+                "tuple": "mint",
+                "list": "mint",
+                "set": "mint",
+                "dict": "mint",
+                "map": "mint"
+            },
+            "keywords": {
+                "for": "pink",
+                "in": "pink",
+                "if": "pink",
+                "elif": "pink",
+                "else": "pink",
+                "break": "pink",
+                "with": "pink",
+                "import": "pink",
+                "as": "pink",
+                "try": "pink",
+                "except": "pink",
+                "finally": "pink",
+                "def": "blue",
+                "lambda": "blue",
+                "class": "blue"
+            },
+            "f_string_tag": "blue",
+            "string": "orange",
+            "comment": "green",
+            "bracket": "pink",
+            "number": "mint",
+            "default": "light-gray"
+        }
+    },
+    "blanks": {
+        "python": {
+            "blank_indicator": "_",
+            "tag_name": "blank",
+            "specifiers": {
+                "id": null,
+                "size": "5"
+            }
+        }
+    },
+    "indents": {
+        "python": {
+            "indent_size": 4,
+            "replace_with": "&emsp;"
+        }
+    },
+    "encoding": "utf-8"
+}
