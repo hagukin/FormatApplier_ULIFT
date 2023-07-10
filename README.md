@@ -3,6 +3,7 @@
   
 ## Supported languages
 * Python  
+  
 추가 예정  
   
 ## How to use
@@ -52,8 +53,7 @@ cfg.json["blanks"][원하는 언어명]["blank_indicator"] 에서 수정이 가�
 * 내장함수
 * 키워드  
 * 중괄호 (단, fstring 내의 중괄호 제외)
-* 정수, 실수 리터럴
-* 
+* 정수, 실수 리터럴  
 만약 어떤 대상의 태그 색상을 변경하거나,  
 혹은 어떤 특정한 함수/키워드를 자동화 대상에 추가하고 싶다면  
 cfg.json["colors"][원하는 언어명][...] 에서 수정이 가능합니다.  
