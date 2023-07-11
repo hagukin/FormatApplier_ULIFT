@@ -39,6 +39,8 @@
             "f_string_tag": "blue",
             "string": "orange",
             "comment": "green",
+            "f_string_bracket": "pink",
+            "f_string_bracket_inner": "light-gray",
             "bracket": "pink",
             "number": "mint",
             "default": "light-gray"
