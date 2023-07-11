@@ -103,7 +103,7 @@ class FormatConfig():
         try:
             self.read_config()
             if self._config == None or type(self._config) != dict:
-                raise Exception("config.json을 찾는 데 실패했습니다, 기본값을 사용합니다.")
+                raise Exception("cfg.json을 찾는 데 실패했습니다, 기본값을 사용합니다.")
         except:
             self._config = FormatConfig.DEFAULT_CONFIG
             with open(".\\config\\cfg.json", mode='w+', encoding=self.config["encoding"]) as cfg:
@@ -242,7 +242,7 @@ class PythonFormatApplier(FormatApplier):
             while found != -1:
                 tag_name = self.config["colors"]["python"]["keywords"][keyword]
                 add_idx = (len(tag_name)*2) + 5
-                if (found != 0 and new_line[found-1] != " ") or (found+len(keyword) < len(new_line) and new_line[found+len(keyword)] != " "):
+                if (found != 0 and not new_line[found-1].isspace()) or (found+len(keyword) < len(new_line) and (not new_line[found+len(keyword)].isspace() and new_line[found+len(keyword)] != ":")):
                     add_idx = 0 # 태그 추가 안했으므로
                     pass # 키워드로 사용되는 경우가 아닌 경우 (e.g. will_continue = 1 의 continue 무시)
                 else:
