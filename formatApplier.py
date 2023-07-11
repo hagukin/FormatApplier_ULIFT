@@ -174,7 +174,6 @@ class FormatApplier():
     
     def find_all_numbers(self, line: str) -> list[any]:
         # 어떤 문자열 내의 모든 부동소수점, 정수 값들을 찾아 반환한다
-        # TODO: 문자열 중간에 위치한 0을 못찾는 오류
         found = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", line)
         return found
     
@@ -328,7 +327,7 @@ class PythonFormatApplier(FormatApplier):
 
             tag_name = self.config["colors"]["python"]["number"]
             new_line = self.apply_tag(new_line, found, found+len(search_for), tag_name)
-            search_from += 5 + (2*len(tag_name)) + len(search_for)
+            search_from = found + 5 + (2*len(tag_name)) + len(search_for)
         return new_line
 
     def apply_color_format(self, line: str) -> str:
