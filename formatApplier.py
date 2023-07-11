@@ -138,6 +138,8 @@ class FormatApplier():
     def run(self) -> None:
         file_paths: list[str] = [f for f in listdir(FormatApplier.IN_PATH) if isfile(join(FormatApplier.IN_PATH, f))]
         for file_name in file_paths:
+            if file_name[-8:] == ".gitkeep":
+                continue # ignore gitkeep
             with open(FormatApplier.IN_PATH + file_name, "rt", encoding="UTF8") as file:
                 code: list[str] = file.readlines()
                 textfile_name = file_name[:file_name.index(".")+1] + "txt"
@@ -169,6 +171,12 @@ class FormatApplier():
                 for j in range(tag_opened, i):
                     overlapped[j] = True
         return overlapped
+    
+    def find_all_numbers(self, line: str) -> list[any]:
+        # 어떤 문자열 내의 모든 부동소수점, 정수 값들을 찾아 반환한다
+        # TODO: 문자열 중간에 위치한 0을 못찾는 오류
+        found = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", line)
+        return found
     
     def apply_format(self, code: list[str]) -> list[str]:
         raise NotImplementedError()
@@ -233,11 +241,13 @@ class PythonFormatApplier(FormatApplier):
             found = new_line.find(keyword)
             while found != -1:
                 tag_name = self.config["colors"]["python"]["keywords"][keyword]
-                if (found != 0 and new_line[found-1] != " ") or (found+1 < len(new_line) and new_line[found+1] != " "):
+                add_idx = (len(tag_name)*2) + 5
+                if (found != 0 and new_line[found-1] != " ") or (found+len(keyword) < len(new_line) and new_line[found+len(keyword)] != " "):
+                    add_idx = 0 # 태그 추가 안했으므로
                     pass # 키워드로 사용되는 경우가 아닌 경우 (e.g. will_continue = 1 의 continue 무시)
                 else:
                     new_line = self.apply_tag(new_line, found, found+len(keyword), tag_name)
-                found = new_line.find(keyword, int(found) + len(keyword) + (len(tag_name)*2) + 5) # 태그 추가로 인해 늘어난 길이만큼 더한다 = tag_name*2 + 5 (<x> </x>) 
+                found = new_line.find(keyword, found + len(keyword) + add_idx) # 태그 추가로 인해 늘어난 길이만큼 더한다 = tag_name*2 + 5 (<x> </x>) 
         return new_line
     
     def apply_color_format_fstring(self, line: str) -> str:
@@ -300,7 +310,7 @@ class PythonFormatApplier(FormatApplier):
     
     def apply_color_format_number_literal(self, line: str) -> str:
         new_line = line
-        numbers: list[any] = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", new_line) # 모든 가능한 수 타입 찾아 리스트로 반환
+        numbers: list[any] = self.find_all_numbers(new_line) # 모든 가능한 수 타입 찾아 리스트로 반환
 
         search_from = 0
         for number in numbers:
