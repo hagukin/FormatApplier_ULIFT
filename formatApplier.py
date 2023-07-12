@@ -27,6 +27,7 @@ class FormatConfig():
         "colors" : {
             "python" : {
                 "built_in_functions" : {
+                    "allowed_headers" : ["(",",","&","|","+","-","/","*","%"],
                     "print" : "lemon",
                     "len" : "lemon",
                     "__init__" : "lemon",
@@ -171,8 +172,9 @@ class FormatApplier():
                 tag_opened = i
             if new_line[i:i+2] == "</" and tag_opened != -1:
                 tag_end = new_line.find(">",i)
-                for j in range(tag_opened, i):
+                for j in range(tag_opened, tag_end):
                     overlapped[j] = new_line[i+2:tag_end] # 태그명으로 저장
+                tag_opened = -1
         return overlapped
     
     def find_all_numbers(self, line: str) -> list[any]:
@@ -226,12 +228,14 @@ class PythonFormatApplier(FormatApplier):
     
     def apply_color_format_builtin(self, line: str) -> str:
         new_line = line
+        allowed_headers = self.config["colors"]["python"]["built_in_functions"]["allowed_headers"]
         for builtin in self.config["colors"]["python"]["built_in_functions"].keys():
             found = new_line.find(builtin)
             while found != -1:
                 tag_name = self.config["colors"]["python"]["built_in_functions"][builtin]
-                if (found != 0 and new_line[found-1] != " ") or (found+1 < len(new_line) and new_line[found+len(builtin)] != "("):
+                if (found != 0 and (not new_line[found-1].isspace() and new_line[found-1] not in allowed_headers)) or (found+1 < len(new_line) and new_line[found+len(builtin)] != "("):
                     pass # 내장함수를 사용되는 경우가 아닌 경우 (e.g. player_len에서의 len 무시)
+                    # 단 allowed_headers 접두사들에 대해서는 builtin function으로 처리 (e.g. 5*len(players))
                 else:
                     new_line = self.apply_tag(new_line, found, found+len(builtin), tag_name)
                 found = new_line.find(builtin, int(found) + len(builtin) + (len(tag_name)*2) + 5) # 태그 추가로 인해 늘어난 길이만큼 더한다 = tag_name*2 + 5 (<x> </x>) 
@@ -438,7 +442,6 @@ class PythonFormatApplier(FormatApplier):
 def start() -> int:
     fa = PythonFormatApplier("python")
     fa.run()
-    input("종료하시려면 아무 키나 누르십시오.")
     return 0
 
 if __name__ == "__main__":

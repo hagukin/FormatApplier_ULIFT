@@ -7,6 +7,17 @@
     "colors": {
         "python": {
             "built_in_functions": {
+                "allowed_headers": [
+                    "(",
+                    ",",
+                    "&",
+                    "|",
+                    "+",
+                    "-",
+                    "/",
+                    "*",
+                    "%"
+                ],
                 "print": "lemon",
                 "len": "lemon",
                 "__init__": "lemon",
