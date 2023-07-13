@@ -27,7 +27,7 @@ class FormatConfig():
         "colors" : {
             "python" : {
                 "built_in_functions" : {
-                    "allowed_headers" : ["(",",","&","|","+","-","/","*","%"],
+                    "allowed_headers" : ["(",",","&","|","+","-","/","*","%","<",">","{","}","[","]"],
                     "print" : "lemon",
                     "len" : "lemon",
                     "__init__" : "lemon",
@@ -40,6 +40,9 @@ class FormatConfig():
                     "set" : "mint",
                     "dict" : "mint",
                     "map" : "mint",
+                    "int" : "mint",
+                    "float" : "mint",
+                    "str" : "mint",
                 },
                 "keywords" : {
                     "for" : "pink",
@@ -63,7 +66,6 @@ class FormatConfig():
                 "string" : "orange",
                 "comment" : "green",
                 "f_string_bracket" : "pink",
-                "f_string_bracket_inner" : "light-gray",
                 "bracket" : "pink",
                 "number" : "mint",
                 "default" : "light-gray",
@@ -271,7 +273,6 @@ class PythonFormatApplier(FormatApplier):
         new_line = line
         str_tag = self.config["colors"]["python"]["string"] # 문자열
         br_tag = self.config["colors"]["python"]["f_string_bracket"] # f string 내부의 괄호 색상
-        inner_tag = self.config["colors"]["python"]["f_string_bracket_inner"] # 괄호 내부의 코드 색상
 
         br_begin = new_line.find("{")
         br_end = new_line.find("}")
@@ -290,9 +291,6 @@ class PythonFormatApplier(FormatApplier):
             new_line = self.apply_tag(new_line, br_begin, br_begin+len("{"), br_tag)
             br_end += (2+len(br_tag))*2 + 1 # <x></x>
             br_begin += (2+len(br_tag))*2 + 1
-
-            new_line = self.apply_tag(new_line, br_begin + 1, br_end, inner_tag)
-            br_end += (2+len(inner_tag))*2 + 1
 
             new_line = self.apply_tag(new_line, br_end, br_end+len("}"), br_tag)
             br_end += (2+len(br_tag))*2 + 1 # <x></x>
@@ -367,9 +365,11 @@ class PythonFormatApplier(FormatApplier):
             if found == -1:
                 print("숫자에 색상 태그를 입히는 과정에서 에러가 발생했습니다.")
                 break
-            if found > 0 and new_line[found-1].isalpha():
+            if found > 0 and new_line[found-1].isalpha(): # TODO: 현재 i-1과 같은 코드의 경우 '-1' 전체를 literal로 판정하는 문제 발생
+                search_from = found+1
                 continue # num1 과 같이 변수명 뒤의 숫자 허용
             if overlapped[found]:
+                search_from = found+1
                 continue # 태그 중복 방지
 
             tag_name = self.config["colors"]["python"]["number"]
@@ -378,12 +378,12 @@ class PythonFormatApplier(FormatApplier):
         return new_line
 
     def apply_color_format(self, line: str) -> str:
-        new_line = self.apply_color_format_builtin(line)
-        new_line = self.apply_color_format_keyword(new_line)
-        new_line = self.apply_color_format_fstring(new_line)
+        new_line = self.apply_color_format_fstring(line)
         new_line = self.apply_color_format_string(new_line)
         new_line = self.apply_color_format_bracket(new_line)
         new_line = self.apply_color_format_f_string_bracket(new_line)
+        new_line = self.apply_color_format_builtin(new_line)
+        new_line = self.apply_color_format_keyword(new_line)
         new_line = self.apply_color_format_comment(new_line)
         return new_line
     

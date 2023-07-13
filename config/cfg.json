@@ -16,7 +16,13 @@
                     "-",
                     "/",
                     "*",
-                    "%"
+                    "%",
+                    "<",
+                    ">",
+                    "{",
+                    "}",
+                    "[",
+                    "]"
                 ],
                 "print": "lemon",
                 "len": "lemon",
@@ -28,7 +34,10 @@
                 "list": "mint",
                 "set": "mint",
                 "dict": "mint",
-                "map": "mint"
+                "map": "mint",
+                "int": "mint",
+                "float": "mint",
+                "str": "mint"
             },
             "keywords": {
                 "for": "pink",
@@ -51,7 +60,6 @@
             "string": "orange",
             "comment": "green",
             "f_string_bracket": "pink",
-            "f_string_bracket_inner": "light-gray",
             "bracket": "pink",
             "number": "mint",
             "default": "light-gray"
