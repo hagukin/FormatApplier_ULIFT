@@ -152,18 +152,34 @@ class FormatApplier():
         print("작업이 완료되었습니다.")
         return
     
-    def apply_color_format(self, line: str) -> str:
-        # line의 idx번 문자부터 색상 포맷을 추가한다
-        raise NotImplementedError()
+    def apply_tag(self, line: str, head_idx: int, tail_idx: int, tag_name: str) -> str:
+        string = line[:head_idx] + f"<{tag_name}>" + line[head_idx:tail_idx] + f"</{tag_name}>" + line[tail_idx:]
+        return string
     
-    def apply_blank_format(self, line: str) -> str:
-        # line의 idx번 문자부터 빈칸 포맷을 추가한다
-        raise NotImplementedError()
+    def apply_tag_head(self, line: str, head_idx: int, tag_name: str) -> str:
+        return line[:head_idx] + f"<{tag_name}>" + line[head_idx:]
     
-    def apply_indent_format(self, line: str) -> str:
-        # line의 idx번 문자부터 인덴트 포맷을 추가한다
-        raise NotImplementedError()
+    def apply_tag_tail(self, line: str, tail_idx: int, tag_name: str) -> str:
+        return line[:tail_idx] + f"</{tag_name}>" + line[tail_idx:]
     
+    def apply_blank_tag(self, line: str, idx: int, tag_name: str, blank_num: int, specifiers: dict) -> str:
+        # 주어진 파라미터 값에 맞게 빈칸 태그를 추가한다
+        # 태그의 세부 인자는 specifiers 딕셔너리로 주어진다.
+        # e.g. <blank id='1'size='5'></blank> 을 추가하려면
+        # tag_name = "blank"
+        # blank_num = 1
+        # specifiers = {id:None, size:5}
+        # 를 인자로 전달하면 된다.
+        string = line[:idx] + f"<{tag_name} "
+        for spec_name, spec_val in specifiers.items():
+            if spec_name == "id":
+                spec_val = blank_num
+            string += spec_name + "=" + f"\'{spec_val}\'"
+        string += ">"
+        string += f"</{tag_name}>"
+        string += line[idx:]
+        return string
+        
     def return_overlapped(self, line: str) -> list[bool]:
         # 각 구간 별 어떤 태그를 적용중인지를 리스트로 반환.
         overlapped = [""] * len(line)
@@ -183,6 +199,18 @@ class FormatApplier():
         # 어떤 문자열 내의 모든 부동소수점, 정수 값들을 찾아 반환한다
         found = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", line)
         return found
+    
+    def apply_color_format(self, line: str) -> str:
+        # line에 색상 포맷을 추가해 반환한다
+        raise NotImplementedError()
+    
+    def apply_blank_format(self, line: str) -> str:
+        # line에 빈칸 포맷을 추가해 반환한다
+        raise NotImplementedError()
+    
+    def apply_indent_format(self, line: str) -> str:
+        # line에 인덴트 포맷을 추가해 반환한다
+        raise NotImplementedError()
     
     def apply_format(self, code: list[str]) -> list[str]:
         raise NotImplementedError()
@@ -206,27 +234,6 @@ class PythonFormatApplier(FormatApplier):
             if self.config["toggle"]["indent_formatting"]:
                 code[code_idx] = self.apply_indent_format(code[code_idx])
         return code
-
-    def apply_tag(self, line: str, head_idx: int, tail_idx: int, tag_name: str) -> str: # TODO: tag specifier 입력 자동화
-        string = line[:head_idx] + f"<{tag_name}>" + line[head_idx:tail_idx] + f"</{tag_name}>" + line[tail_idx:]
-        return string
-    
-    def apply_tag_head(self, line: str, head_idx: int, tag_name: str) -> str:
-        return line[:head_idx] + f"<{tag_name}>" + line[head_idx:]
-    
-    def apply_tag_tail(self, line: str, tail_idx: int, tag_name: str) -> str:
-        return line[:tail_idx] + f"</{tag_name}>" + line[tail_idx:]
-    
-    def apply_blank_tag(self, line: str, idx: int, tag_name: str, blank_num: int, specifiers: dict) -> str:
-        string = line[:idx] + f"<{tag_name} "
-        for spec_name, spec_val in specifiers.items():
-            if spec_name == "id":
-                spec_val = blank_num
-            string += spec_name + "=" + f"\'{spec_val}\'"
-        string += ">"
-        string += f"</{tag_name}>"
-        string += line[idx:]
-        return string
     
     def apply_color_format_builtin(self, line: str) -> str:
         new_line = line
@@ -365,7 +372,7 @@ class PythonFormatApplier(FormatApplier):
             if found == -1:
                 print("숫자에 색상 태그를 입히는 과정에서 에러가 발생했습니다.")
                 break
-            if found > 0 and new_line[found-1].isalpha(): # TODO: 현재 i-1과 같은 코드의 경우 '-1' 전체를 literal로 판정하는 문제 발생
+            if found > 0 and new_line[found-1].isalpha():
                 search_from = found+1
                 continue # num1 과 같이 변수명 뒤의 숫자 허용
             if overlapped[found]:
@@ -416,7 +423,7 @@ class PythonFormatApplier(FormatApplier):
                 blank_end = blank_end = new_line.find(search_for, blank_end+1)
                 continue
             except Exception as e:
-                print("코드의 빈칸 태그를 찾는 과정에서 알 수 없는 오류가 발생했습니다.")
+                print(f"코드의 빈칸 태그를 찾는 과정에서 알 수 없는 오류가 발생했습니다 - {e.__str__()}")
                 return
             
             new_line = new_line[:blank_begin] + new_line[blank_end+len(search_for):] # 기존 blank indicator 삭제
@@ -438,7 +445,25 @@ class PythonFormatApplier(FormatApplier):
         new_line = new_line.replace('\t', x) # 탭
         new_line = new_line.replace(" " * self.config["indents"]['python']["indent_size"], x) # 공백
         return new_line
+
+
+class JavascriptFormatApplier(FormatApplier):
+    def __init__(self, lang: str):
+        super().__init__(lang)
+
+    def apply_color_format(self, line: str) -> str:
+        raise NotImplementedError()
     
+    def apply_blank_format(self, line: str) -> str:
+        raise NotImplementedError()
+    
+    def apply_indent_format(self, line: str) -> str:
+        raise NotImplementedError()
+    
+    def apply_format(self, code: list[str]) -> list[str]:
+        raise NotImplementedError()
+    
+
 def start() -> int:
     fa = PythonFormatApplier("python")
     fa.run()
