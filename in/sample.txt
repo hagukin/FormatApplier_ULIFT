@@ -1,0 +1,15 @@
+buildings = [
+    ["X","X","O","O","O"],
+    ["O","O","O","X","O"],
+    ["O","X","O","O","X"]
+]
+criminal_rate_before = 0.766
+criminal_rate = criminal_rate_before
+
+for row in _1_:
+    for building in row:
+        if _2_ == "X":
+            criminal_rate = round(criminal_rate / 2, 3)
+
+decreased = criminal_rate_before - criminal_rate
+print(f"범죄율이 {criminal_rate_before}에서 {criminal_rate}으로 {decreased}만큼 감소했습니다.")

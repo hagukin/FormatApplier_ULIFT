@@ -2,3 +2,5 @@ in/*
 out/*
 !in/.gitkeep
 !out/.gitkeep
+!in/sample.txt
+!out/sample.txt

@@ -1,0 +1,15 @@
+buildings = [
+&emsp;&emsp;&emsp;&emsp;[<orange>"X"</orange>,<orange>"X"</orange>,<orange>"O"</orange>,<orange>"O"</orange>,<orange>"O"</orange>],
+&emsp;&emsp;&emsp;&emsp;[<orange>"O"</orange>,<orange>"O"</orange>,<orange>"O"</orange>,<orange>"X"</orange>,<orange>"O"</orange>],
+&emsp;&emsp;&emsp;&emsp;[<orange>"O"</orange>,<orange>"X"</orange>,<orange>"O"</orange>,<orange>"O"</orange>,<orange>"X"</orange>]
+]
+criminal_rate_before = <mint>0.766</mint>
+criminal_rate = criminal_rate_before
+
+<pink>for</pink> row <pink>in</pink> <blank id='1'size='5'></blank>:
+&emsp;&emsp;&emsp;&emsp;<pink>for</pink> building <pink>in</pink> row:
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<pink>if</pink> <blank id='2'size='5'></blank> == <orange>"X"</orange>:
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;criminal_rate = round(criminal_rate / <mint>2</mint>, <mint>3</mint>)
+
+decreased = criminal_rate_before - criminal_rate
+<lemon>print</lemon>(<blue>f</blue><orange>"범죄율이 </orange><pink>{</pink>criminal_rate_before<pink>}</pink><orange>에서 </orange><pink>{</pink>criminal_rate<pink>}</pink><orange>으로 </orange><pink>{</pink>decreased<pink>}</pink><orange>만큼 감소했습니다."</orange>)
