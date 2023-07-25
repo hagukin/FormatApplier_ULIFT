@@ -100,8 +100,7 @@ class FormatConfig():
 
     def read_config(self) -> None:
         with open(".\\config\\cfg.json", 'r') as f:
-            data = json.load(f)
-        self._config = json.dumps(data)
+            self._config = json.load(f)
         return
 
     def init_config(self) -> None:
@@ -109,7 +108,8 @@ class FormatConfig():
             self.read_config()
             if self._config == None or type(self._config) != dict:
                 raise Exception("cfg.json을 찾는 데 실패했습니다, 기본값을 사용합니다.")
-        except:
+        except Exception as e:
+            print(e)
             self._config = FormatConfig.DEFAULT_CONFIG
             with open(".\\config\\cfg.json", mode='w+', encoding=self.config["encoding"]) as cfg:
                 json.dump(self._config, cfg, indent=4)
