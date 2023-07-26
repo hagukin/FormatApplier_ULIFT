@@ -52,9 +52,12 @@
                 "try": "pink",
                 "except": "pink",
                 "finally": "pink",
+                "return": "pink",
                 "def": "blue",
                 "lambda": "blue",
-                "class": "blue"
+                "class": "blue",
+                "pass": "pink",
+                "not": "pink"
             },
             "f_string_tag": "blue",
             "string": "orange",
@@ -62,6 +65,10 @@
             "f_string_bracket": "pink",
             "bracket": "pink",
             "number": "mint",
+            "number_disallowed_headers": [
+                "_",
+                "-"
+            ],
             "default": "light-gray"
         }
     },

@@ -42,7 +42,7 @@ class FormatConfig():
                     "map" : "mint",
                     "int" : "mint",
                     "float" : "mint",
-                    "str" : "mint",
+                    "str" : "mint"
                 },
                 "keywords" : {
                     "for" : "pink",
@@ -57,10 +57,12 @@ class FormatConfig():
                     "try" : "pink",
                     "except" : "pink",
                     "finally" : "pink",
-
+                    "return" : "pink",
                     "def" : "blue",
                     "lambda" : "blue",
                     "class" : "blue",
+                    "pass" : "pink",
+                    "not" : "pink"
                 },
                 "f_string_tag" : "blue",
                 "string" : "orange",
@@ -68,7 +70,8 @@ class FormatConfig():
                 "f_string_bracket" : "pink",
                 "bracket" : "pink",
                 "number" : "mint",
-                "default" : "light-gray",
+                "number_disallowed_headers" : ["_","-"],
+                "default" : "light-gray"
             },
         },
         "blanks" : {
@@ -242,7 +245,9 @@ class PythonFormatApplier(FormatApplier):
             found = new_line.find(builtin)
             while found != -1:
                 tag_name = self.config["colors"]["python"]["built_in_functions"][builtin]
-                if (found != 0 and (not new_line[found-1].isspace() and new_line[found-1] not in allowed_headers)) or (found+1 < len(new_line) and new_line[found+len(builtin)] != "("):
+                if self.return_overlapped(new_line)[found]:
+                    pass # 태그 중복 (e.g. string 내부에 적힌 builtin)
+                elif (found != 0 and (not new_line[found-1].isspace() and new_line[found-1] not in allowed_headers)) or (found+1 < len(new_line) and new_line[found+len(builtin)] != "("):
                     pass # 내장함수를 사용되는 경우가 아닌 경우 (e.g. player_len에서의 len 무시)
                     # 단 allowed_headers 접두사들에 대해서는 builtin function으로 처리 (e.g. 5*len(players))
                 else:
@@ -257,7 +262,10 @@ class PythonFormatApplier(FormatApplier):
             while found != -1:
                 tag_name = self.config["colors"]["python"]["keywords"][keyword]
                 add_idx = (len(tag_name)*2) + 5
-                if (found != 0 and not new_line[found-1].isspace()) or (found+len(keyword) < len(new_line) and (not new_line[found+len(keyword)].isspace() and new_line[found+len(keyword)] != ":")):
+                if self.return_overlapped(new_line)[found]:
+                    add_idx = 0 # 태그 추가 안했으므로
+                    pass # 태그 중복 (e.g. string 내부에 적힌 keyword)
+                elif (found != 0 and not new_line[found-1].isspace()) or (found+len(keyword) < len(new_line) and (not new_line[found+len(keyword)].isspace() and new_line[found+len(keyword)] != ":")):
                     add_idx = 0 # 태그 추가 안했으므로
                     pass # 키워드로 사용되는 경우가 아닌 경우 (e.g. will_continue = 1 의 continue 무시)
                 else:
@@ -372,7 +380,7 @@ class PythonFormatApplier(FormatApplier):
             if found == -1:
                 print("숫자에 색상 태그를 입히는 과정에서 에러가 발생했습니다.")
                 break
-            if found > 0 and new_line[found-1].isalpha():
+            if found > 0 and (new_line[found-1].isalpha() or new_line[found-1] in self.config["colors"]["python"]["number_disallowed_headers"]):
                 search_from = found+1
                 continue # num1 과 같이 변수명 뒤의 숫자 허용
             if overlapped[found]:
